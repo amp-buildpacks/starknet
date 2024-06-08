@@ -112,7 +112,7 @@ func (r Starknet) Execute(command string, args []string) (*bytes.Buffer, error) 
 func (r Starknet) BuildProcessTypes(cr libpak.ConfigurationResolver, app libcnb.Application) ([]libcnb.Process, error) {
 	processes := []libcnb.Process{}
 
-	enableDeploy := cr.ResolveBool("BP_ENABLE_STARKNET_PROCESS")
+	enableDeploy := cr.ResolveBool("BP_ENABLE_STARKNET_DEPLOY")
 	if enableDeploy {
 		deployPrivateKey, _ := r.configResolver.Resolve("BP_STARKNET_DEPLOY_PRIVATE_KEY")
 		if len(deployPrivateKey) == 0 {
@@ -150,10 +150,14 @@ func (r Starknet) InitializeDeployWallet() (bool, error) {
  *	--rpc https://starknet-sepolia.public.blastapi.io/rpc/v0_7
  */
 func (r Starknet) InitializeWallet() (bool, error) {
-	r.Logger.Bodyf("Initializing deploy wallet")
 	deployWalletAddress, _ := r.configResolver.Resolve("BP_STARKNET_DEPLOY_WALLET_ADDRESS")
 	deployAccount, _ := r.configResolver.Resolve("BP_STARKNET_DEPLOY_ACCOUNT")
 	deployRpc, _ := r.configResolver.Resolve("BP_STARKNET_DEPLOY_RPC")
+
+	accountDir := filepath.Dir(deployAccount)
+	r.Logger.Bodyf("Initializing deploy wallet and save to dir:", accountDir)
+	os.MkdirAll(accountDir, os.ModePerm)
+
 	args := []string{
 		"account",
 		"fetch",

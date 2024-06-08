@@ -40,14 +40,14 @@ api = "0.8"
   [[metadata.configurations]]
     build = true
     default = "gnu"
-    description = "The Starknet libc version"
+    description = "libc implementation: gnu or musl"
     name = "BP_STARKNET_LIBC"
 
   [[metadata.configurations]]
     build = true
     default = "true"
-    description = "Enable the Starknet run process"
-    name = "BP_ENABLE_STARKNET_PROCESS"
+    description = "Enable the Starknet deploy tool"
+    name = "BP_ENABLE_STARKNET_DEPLOY"
 
   [[metadata.configurations]]
     build = true
@@ -61,7 +61,7 @@ api = "0.8"
 
   [[metadata.configurations]]
     build = true
-    default = "/workspace/starkli-wallets/deployer/my_account_1.json"
+    default = "/workspace/starkli-wallets/deployer_account.json"
     description = "Configure the wallet account for Starknet deploy"
     name = "BP_STARKNET_DEPLOY_ACCOUNT"
 
