@@ -61,7 +61,7 @@ api = "0.8"
 
   [[metadata.configurations]]
     build = true
-    default = "~/.starkli-wallets/deployer/my_account_1.json"
+    default = "/workspace/starkli-wallets/deployer/my_account_1.json"
     description = "Configure the wallet account for Starknet deploy"
     name = "BP_STARKNET_DEPLOY_ACCOUNT"
 
