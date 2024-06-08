@@ -1,0 +1,17 @@
+[[dependencies]]
+id = "starkli-gnu"
+name = "Starkli (GNU libc)"
+pkg_name = "starkli"
+sha256 = "fab1ff015a018722b4dad51d1ebbd1b682a74425d83d433ec96d87abb9317c59"
+uri = "https://github.com/xJonathanLEI/starkli/releases/download/v0.3.0/starkli-x86_64-unknown-linux-gnu.tar.gz"
+version = "0.3.0"
+license = "GNU"
+
+[[dependencies]]
+id = "starkli-musl"
+name = "Starkli (musl libc)"
+pkg_name = "starkli"
+sha256 = "a6523c2b036af9bb715f7a658849398368113d4df56a9e99ceb681a9aa9e54c7"
+uri = "https://github.com/xJonathanLEI/starkli/releases/download/v0.3.0/starkli-x86_64-unknown-linux-musl.tar.gz"
+version = "0.3.0"
+license = "GNU"
