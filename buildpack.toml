@@ -39,6 +39,12 @@ api = "0.8"
 
   [[metadata.configurations]]
     build = true
+    default = "gnu"
+    description = "The Starknet libc version"
+    name = "BP_STARKNET_LIBC"
+
+  [[metadata.configurations]]
+    build = true
     default = "true"
     description = "Enable the Starknet run process"
     name = "BP_ENABLE_STARKNET_PROCESS"

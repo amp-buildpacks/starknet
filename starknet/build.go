@@ -53,7 +53,8 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 
 		// install starkli
 		v, _ := cr.Resolve("BP_STARKNET_VERSION")
-		dependency, err := dr.Resolve("starkli-gnu", v)
+		libc, _ := cr.Resolve("BP_STARKNET_LIBC")
+		dependency, err := dr.Resolve(fmt.Sprintf("%s-%s", PlanEntryStarkli, libc), v)
 		if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
 		}
