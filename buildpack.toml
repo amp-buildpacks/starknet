@@ -1,0 +1,104 @@
+# Copyright (c) The Amphitheatre Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+api = "0.8"
+
+[buildpack]
+  description = "A Cloud Native Buildpack that provides the Starknet Tool Suite"
+  homepage = "https://github.com/amp-buildpacks/starknet"
+  id = "amp-buildpacks/starknet"
+  keywords = ["Starknet"]
+  sbom-formats = ["application/vnd.cyclonedx+json", "application/vnd.syft+json"]
+  name = "AMP Buildpack for Starknet"
+  version = "{{ .version }}"
+
+  [[buildpack.licenses]]
+    type = "Apache-2.0"
+    uri = "https://github.com/amp-buildpacks/starknet/blob/main/LICENSE"
+
+[metadata]
+  include-files = ["LICENSE", "README.md", "linux/amd64/bin/build", "linux/amd64/bin/detect", "linux/amd64/bin/main", "linux/arm64/bin/build", "linux/arm64/bin/detect", "linux/arm64/bin/main", "buildpack.toml"]
+  pre-package = "scripts/build.sh"
+
+  [[metadata.configurations]]
+    build = true
+    default = "0.3.0"
+    description = "The Starknet version"
+    name = "BP_STARKNET_VERSION"
+
+  [[metadata.configurations]]
+    build = true
+    default = "gnu"
+    description = "libc implementation: gnu or musl"
+    name = "BP_STARKNET_LIBC"
+
+  [[metadata.configurations]]
+    build = true
+    default = "true"
+    description = "Enable the Starknet deploy tool"
+    name = "BP_ENABLE_STARKNET_DEPLOY"
+
+  [[metadata.configurations]]
+    build = true
+    description = "Configure the wallet private key for Starknet deploy"
+    name = "BP_STARKNET_DEPLOY_PRIVATE_KEY"
+
+  [[metadata.configurations]]
+    build = true
+    description = "Configure the wallet address for Starknet deploy"
+    name = "BP_STARKNET_DEPLOY_WALLET_ADDRESS"
+
+  [[metadata.configurations]]
+    build = true
+    default = "/workspace/starkli-wallets/deployer_account.json"
+    description = "Configure the wallet account for Starknet deploy"
+    name = "BP_STARKNET_DEPLOY_ACCOUNT"
+
+  [[metadata.configurations]]
+    build = true
+    default = "https://starknet-sepolia.public.blastapi.io/rpc/v0_7"
+    description = "Configure the rpc for Starknet deploy"
+    name = "BP_STARKNET_DEPLOY_RPC"
+
+  [[metadata.dependencies]]
+    id = "starkli-gnu"
+    name = "Starkli (GNU libc)"
+    purl = "pkg:generic/starkli@v0.3.0"
+    sha256 = "fab1ff015a018722b4dad51d1ebbd1b682a74425d83d433ec96d87abb9317c59"
+    uri = "https://github.com/xJonathanLEI/starkli/releases/download/v0.3.0/starkli-x86_64-unknown-linux-gnu.tar.gz"
+    stacks = ["*"]
+    version = "0.3.0"
+    licenses = [ "GNU" ]
+
+  [[metadata.dependencies]]
+    id = "starkli-musl"
+    name = "Starkli (musl libc)"
+    purl = "pkg:generic/starkli@v0.3.0"
+    sha256 = "a6523c2b036af9bb715f7a658849398368113d4df56a9e99ceb681a9aa9e54c7"
+    uri = "https://github.com/xJonathanLEI/starkli/releases/download/v0.3.0/starkli-x86_64-unknown-linux-musl.tar.gz"
+    stacks = ["*"]
+    version = "0.3.0"
+    licenses = [ "GNU" ]
+
+
+[[stacks]]
+  id = "*"
+
+[[targets]]
+  arch = "amd64"
+  os = "linux"
+
+[[targets]]
+  arch = "arm64"
+  os = "linux"
