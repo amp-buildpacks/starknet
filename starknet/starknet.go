@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/buildpacks/libcnb"
+	"github.com/mattn/go-shellwords"
 	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/libpak/bard"
 	"github.com/paketo-buildpacks/libpak/crush"
@@ -35,6 +36,11 @@ type Starknet struct {
 	Logger           bard.Logger
 	Executor         effect.Executor
 }
+
+const (
+	classHashFile = "/workspace/class_hash.txt"
+	compileDir    = "/workspace/target/dev"
+)
 
 func NewStarknet(dependency libpak.BuildpackDependency, cache libpak.DependencyCache, configResolver libpak.ConfigurationResolver) Starknet {
 	contributor := libpak.NewDependencyLayerContributor(dependency, cache, libcnb.LayerTypes{
@@ -92,6 +98,16 @@ func (r Starknet) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
 		layer.LaunchEnvironment.Default("STARKNET_PRIVATE_KEY", deployPrivateKey)
 		layer.LaunchEnvironment.Default("STARKNET_ACCOUNT", deployAccount)
 		layer.LaunchEnvironment.Default("STARKNET_RPC", deployRpc)
+
+		os.Setenv("STARKNET_PRIVATE_KEY", deployPrivateKey)
+		os.Setenv("STARKNET_ACCOUNT", deployAccount)
+		os.Setenv("STARKNET_RPC", deployRpc)
+
+		classHash, err := r.DeclareContract()
+		if err != nil {
+			return libcnb.Layer{}, err
+		}
+		layer.LaunchEnvironment.Default("STARKNET_CLASS_HASH", classHash)
 		return layer, nil
 	})
 }
@@ -119,15 +135,22 @@ func (r Starknet) BuildProcessTypes(cr libpak.ConfigurationResolver, app libcnb.
 			return processes, fmt.Errorf("BP_STARKNET_DEPLOY_PRIVATE_KEY must be specified")
 		}
 
-		if classHash, err := r.DeclareContract(); err != nil {
-			deployWalletAddress, _ := r.configResolver.Resolve("BP_STARKNET_DEPLOY_WALLET_ADDRESS")
-			processes = append(processes, libcnb.Process{
-				Type:      PlanEntryStarkli,
-				Command:   PlanEntryStarkli,
-				Arguments: []string{"deploy", classHash, deployWalletAddress},
-				Default:   true,
-			})
+		deployArgsRaw, _ := cr.Resolve("BP_STARKNET_DEPLOY_ARGS")
+		deployArgs, err := shellwords.Parse(deployArgsRaw)
+		if err != nil {
+			return processes, fmt.Errorf("unable to parse BP_STARKNET_DEPLOY_ARGS=%q\n%w", deployArgsRaw, err)
 		}
+
+		args := []string{"deploy", "--strk", "$STARKNET_CLASS_HASH"}
+		args = append(args, deployArgs...)
+		r.Logger.Bodyf("Deploying contract with args: %s", args)
+
+		processes = append(processes, libcnb.Process{
+			Type:      PlanEntryStarkli,
+			Command:   PlanEntryStarkli,
+			Arguments: args,
+			Default:   true,
+		})
 	}
 	return processes, nil
 }
@@ -155,7 +178,7 @@ func (r Starknet) InitializeWallet() (bool, error) {
 	deployRpc, _ := r.configResolver.Resolve("BP_STARKNET_DEPLOY_RPC")
 
 	accountDir := filepath.Dir(deployAccount)
-	r.Logger.Bodyf("Initializing deploy wallet and save to dir:", accountDir)
+	r.Logger.Bodyf("Initializing deploy wallet and save to dir: %s", accountDir)
 	os.MkdirAll(accountDir, os.ModePerm)
 
 	args := []string{
@@ -175,17 +198,35 @@ func (r Starknet) InitializeWallet() (bool, error) {
 }
 
 func (r Starknet) DeclareContract() (string, error) {
-	r.Logger.Bodyf("Declaring contract")
-	args := []string{
-		"declare",
-		"target/dev/*.contract_class.json",
+	file, err := r.ReadContractClass()
+	if err != nil {
+		return "", fmt.Errorf("unable to read contract class\n%w", err)
 	}
 
+	args := []string{
+		"class-hash",
+		filepath.Join(compileDir, file),
+	}
 	buf, err := r.Execute(PlanEntryStarkli, args)
 	if err != nil {
 		return "", fmt.Errorf("unable to declaring contract\n%w", err)
 	}
-
 	classHash := strings.TrimSpace(buf.String())
+	r.Logger.Bodyf("Writing class hash: %s to file: %s", classHash, classHashFile)
+	os.WriteFile(classHashFile, []byte(classHash), 0644)
 	return classHash, nil
+}
+
+func (r Starknet) ReadContractClass() (string, error) {
+	files, err := os.ReadDir(compileDir)
+	if err != nil {
+		return "", fmt.Errorf("unable to read contract class\n%w", err)
+	}
+
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".contract_class.json") {
+			return file.Name(), nil
+		}
+	}
+	return "", fmt.Errorf("unable to find contract class")
 }

@@ -17,3 +17,17 @@ ln -fs main linux/amd64/bin/build
 ln -fs main linux/arm64/bin/build
 ln -fs main linux/amd64/bin/detect
 ln -fs main linux/arm64/bin/detect
+
+
+GOOS="linux" go build -ldflags='-s -w' -o bin/main "$GOMOD/cmd/main"
+
+if [ "${STRIP:-false}" != "false" ]; then
+  strip bin/main
+fi
+
+if [ "${COMPRESS:-none}" != "none" ]; then
+  $COMPRESS bin/main
+fi
+
+ln -fs main bin/build
+ln -fs main bin/detect
