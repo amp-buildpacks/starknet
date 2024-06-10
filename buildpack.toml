@@ -71,6 +71,12 @@ api = "0.8"
     description = "Configure the rpc for Starknet deploy"
     name = "BP_STARKNET_DEPLOY_RPC"
 
+  [[metadata.configurations]]
+    build = true
+    default = ""
+    description = "Configure the args for Starknet deploy"
+    name = "BP_STARKNET_DEPLOY_ARGS"
+
   [[metadata.dependencies]]
     id = "starkli-gnu"
     name = "Starkli (GNU libc)"
