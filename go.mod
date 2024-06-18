@@ -4,8 +4,8 @@ go 1.22
 
 require (
 	github.com/buildpacks/libcnb v1.30.3
-	github.com/paketo-buildpacks/libpak v1.70.0
 	github.com/mattn/go-shellwords v1.0.12
+	github.com/paketo-buildpacks/libpak v1.70.0
 )
 
 require (
