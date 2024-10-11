@@ -3,7 +3,7 @@ module github.com/amp-buildpacks/starknet
 go 1.23
 
 require (
-	github.com/buildpacks/libcnb v1.30.3
+	github.com/buildpacks/libcnb v1.30.4
 	github.com/mattn/go-shellwords v1.0.12
 	github.com/paketo-buildpacks/libpak v1.71.0
 )
