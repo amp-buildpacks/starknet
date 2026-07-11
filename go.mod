@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
-	github.com/mattn/go-shellwords v1.0.13
+	github.com/mattn/go-shellwords v1.0.14
 	github.com/paketo-buildpacks/libpak v1.73.0
 )
 
